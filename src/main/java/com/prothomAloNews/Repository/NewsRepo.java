@@ -1,4 +1,9 @@
 package com.prothomAloNews.Repository;
 
-public class NewsRepo {
+import com.prothomAloNews.Entity.News;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+
+public interface NewsRepo extends JpaRepository<News, Long> {
+
 }
