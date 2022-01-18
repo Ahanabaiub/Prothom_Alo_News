@@ -14,7 +14,7 @@ public class News {
     @GeneratedValue
     private Long id;
 
-    @Column(unique = true)
+
     private String newsLink;
 
     private Date date;
