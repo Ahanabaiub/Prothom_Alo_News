@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
 public class News {
@@ -18,6 +19,15 @@ public class News {
 
     private Date date;
 
+    public News() {
+
+    }
+
+    public News(String newsLink, Date date) {
+        this.newsLink = newsLink;
+        this.date = date;
+    }
+
     public Long getId() {
         return id;
     }
@@ -30,6 +40,7 @@ public class News {
         return newsLink;
     }
 
+
     public void setNewsLink(String newsLink) {
         this.newsLink = newsLink;
     }
@@ -41,4 +52,24 @@ public class News {
     public void setDate(Date date) {
         this.date = date;
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(newsLink);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        News other = (News) obj;
+        return Objects.equals(newsLink, other.newsLink);
+    }
+
+
+
 }

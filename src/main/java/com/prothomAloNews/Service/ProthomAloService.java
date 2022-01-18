@@ -2,6 +2,7 @@ package com.prothomAloNews.Service;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.prothomAloNews.Entity.News;
 import com.prothomAloNews.Repository.NewsRepo;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,6 +14,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component
 public class ProthomAloService {
@@ -26,32 +30,43 @@ public class ProthomAloService {
         try {
 
             document = Jsoup.connect("https://www.prothomalo.com/").get();
-//
-//            System.out.println("Title: "+document.html());
-//
-//            Elements elements =  document.getElementsByClass("newsHeadline-m__title-link__1puEG");
-//            System.out.println(elements.toArray().length);
-//
-//            for(Element e : elements){
-//                System.out.println(e.attr("href"));
-//            }
-//            System.out.println(".......numbered Story.........");
-//
-//            elements =  document.getElementsByTag("a");
-//            System.out.println(elements.toArray().length);
-//            for(Element e : elements){
-//                if(e.attr("href").contains("https://www.prothomalo.com/")) {
-//                    //System.out.println(e.attr("href"));
-//
-//
-//
-//                    if(e.attr("href").matches(".*/bangladesh.*")){
-//
-//                        System.out.println(e.attr("href"));
-//
-//                    }
-//                }
-//            }
+
+            System.out.println("Title: "+document.html());
+
+            Elements elements =  document.getElementsByClass("newsHeadline-m__title-link__1puEG");
+            System.out.println(elements.toArray().length);
+
+            for(Element e : elements){
+                System.out.println(e.attr("href"));
+            }
+            System.out.println(".......numbered Story.........");
+
+            elements =  document.getElementsByTag("a");
+            System.out.println(elements.toArray().length);
+            Set<News> newsLinks = new HashSet<>();
+            for(Element e : elements){
+                if(e.attr("href").contains("https://www.prothomalo.com/")) {
+                    //System.out.println(e.attr("href"));
+
+
+
+                    if(e.attr("href").matches(".*/bangladesh.*")){
+
+                        System.out.println(e.attr("href"));
+                        newsLinks.add(new News(e.attr("href"),new Date()));
+
+                    }
+                }
+            }
+            System.out.println("unique.........");
+
+            for (News s : newsLinks){
+                System.out.println(s.getNewsLink());
+            }
+
+            newsRepo.saveAll(newsLinks);
+
+
 
 //            elements =  document.getElementsByClass("div.fourStoryCards-m__headline-wrapper__2AJeG");
 //            System.out.println(elements.toArray().length);
@@ -76,33 +91,19 @@ public class ProthomAloService {
 //            out.print(document.toString());
 //            out.close();
 
-            document = Jsoup.connect("https://m.imdb.com/chart/top/").get();
-
-            System.out.println(document.select(("#chart-content > div:nth-child(1)")));
-
-            System.out.println();
-
-            System.out.println(document.select(("#chart-content > div:nth-child(1) > div:nth-child(1) > div > span > a")));
+//            document = Jsoup.connect("https://m.imdb.com/chart/top/").get();
+//
+//            System.out.println(document.select(("#chart-content > div:nth-child(1)")));
+//
+//            System.out.println();
+//
+//            System.out.println(document.select(("#chart-content > div:nth-child(1) > div:nth-child(1) > div > span > a")));
 
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-
-
-//        WebClient client = new WebClient();
-//        client.getOptions().setCssEnabled(false);
-//        client.getOptions().setJavaScriptEnabled(false);
-//
-//
-//        try {
-//            HtmlPage page = client.getPage("https://www.prothomalo.com/");
-//            System.out.println(page.asXml());
-//            //System.out.println(page.getByXPath("//*[@id=\"container\"]/div[2]/div/div/div/div[2]/div/div/div[1]/div[2]/a[1]"));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 
 
     }
