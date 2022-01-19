@@ -14,9 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class ProthomAloService {
@@ -29,6 +27,57 @@ public class ProthomAloService {
         Set<News> news = new HashSet<>();
 
         news = collectNews("https://www.prothomalo.com/");
+
+        //Set<String> categoryLinks = findCategoryLink(news);
+
+        news.addAll(collectNews("https://www.prothomalo.com/collection/latest/"));
+
+        news.addAll(collectNews("https://www.prothomalo.com/topic/%E0%A6%AC%E0%A6%BF%E0%A6%B6%E0%A7%87%E0%A6%B7-%E0%A6%B8%E0%A6%82%E0%A6%AC%E0%A6%BE%E0%A6%A6"));
+
+
+        System.out.println("size "+news.size());
+
+        System.out.println("---------generate link-----");
+        List<String> lnks = generateLink("https://www.prothomalo.com/business/world-business/",new ArrayList<>());
+
+        for (String s : lnks){
+            System.out.println(s);
+        }
+
+        //......#########################
+
+
+//        Document document = null;
+//        Set<News> newsLinks = new HashSet<>();
+//        try {
+//
+//            document = Jsoup.connect("https://www.prothomalo.com/collection/latest/").get();
+//
+//            //System.out.println(document);
+//
+//            Elements elements =  document.getElementsByTag("a");
+//            System.out.println(elements.toArray().length);
+//            for(Element e : elements){
+//                if(e.attr("href").contains("https://www.prothomalo.com/") && e.attr("href").length()>27) {
+//                    System.out.println(e.attr("href"));
+//
+//                }
+//                //System.out.println(e.attr("href"));
+//            }
+//            System.out.println("unique.........");
+//
+//            for (News s : newsLinks){
+//                System.out.println(s.getNewsLink());
+//
+//
+//                //System.out.println(s.getNewsLink().substring(0,s.getNewsLink().lastIndexOf("/")));
+//            }
+//
+//
+//
+//} catch (IOException e) {
+//        e.printStackTrace();
+//        }
 
         newsRepo.saveAll(news);
 
@@ -44,7 +93,7 @@ public class ProthomAloService {
             document = Jsoup.connect(url).get();
 
             Elements elements =  document.getElementsByTag("a");
-            System.out.println(elements.toArray().length);
+            //System.out.println(elements.toArray().length);
 
             for(Element e : elements){
                 if(e.attr("href").contains("https://www.prothomalo.com/") && e.attr("href").length()>27) {
@@ -53,7 +102,7 @@ public class ProthomAloService {
                     newsLinks.add(new News(e.attr("href"),new Date()));
 
 
-                        System.out.println(e.attr("href"));
+                        //System.out.println(e.attr("href"));
 
 
 
@@ -63,7 +112,12 @@ public class ProthomAloService {
 
             for (News s : newsLinks){
                 System.out.println(s.getNewsLink());
+
+
+                //System.out.println(s.getNewsLink().substring(0,s.getNewsLink().lastIndexOf("/")));
             }
+
+            System.out.println(newsLinks.size());
 
 
 
@@ -72,6 +126,31 @@ public class ProthomAloService {
         }
 
         return newsLinks;
+
+    }
+
+    private Set<String> findCategoryLink(Set<News> links){
+        Set<String> categoryLinks = new HashSet<>();
+
+        for (News s : links)
+        {
+            categoryLinks.add(s.getNewsLink().substring(0,s.getNewsLink().lastIndexOf("/")));
+            //s.getNewsLink().
+        }
+
+
+        return categoryLinks;
+    }
+
+    private List<String> generateLink(String str, List<String> links){
+
+        if(str.length()<=28)
+        {
+            return links;
+        }
+        links.add(str.substring(0,str.lastIndexOf("/")));
+
+        return generateLink(str.substring(0,str.lastIndexOf("/")),links);
 
     }
 
