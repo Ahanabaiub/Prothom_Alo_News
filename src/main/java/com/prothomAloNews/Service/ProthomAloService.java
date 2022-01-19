@@ -1,10 +1,5 @@
 package com.prothomAloNews.Service;
 
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.DomNodeList;
-import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.prothomAloNews.Entity.News;
 import com.prothomAloNews.Repository.NewsRepo;
 import org.jsoup.Jsoup;
@@ -16,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+
 import java.util.*;
 
 @Component
@@ -26,6 +21,11 @@ public class ProthomAloService {
     NewsRepo newsRepo;
 
 
+    /*
+        method for finding Prothom Alo news.
+        some base url are provided based on that it will generate category link and find news on those link.
+        Finally it will store all unique links to Database.
+     */
     public void findNews()  {
 
         Set<News> news = new HashSet<>();
@@ -40,21 +40,25 @@ public class ProthomAloService {
 
         news.addAll(collectNews("https://www.prothomalo.com/topic/%E0%A6%95%E0%A6%B0%E0%A7%8B%E0%A6%A8%E0%A6%BE%E0%A6%AD%E0%A6%BE%E0%A6%87%E0%A6%B0%E0%A6%BE%E0%A6%B8"));
 
-
-       // news = collectNews("https://www.prothomalo.com/education");
-
-
         Set<String> links;
 
+        /*
+            generate sub-links from previous links
+         */
         for(News n : news){
             links = generateLink(n.getNewsLink(),new HashSet<>());
             subLinks.addAll(links);
         }
 
 
+        /*
+            searching news links on stored sub-links
+         */
         for (String s : subLinks){
             news.addAll(collectNews(s));
         }
+
+        System.out.println("..........News Links............");
 
         for(News n : news){
             System.out.println(n.getNewsLink());
@@ -67,6 +71,9 @@ public class ProthomAloService {
 
     }
 
+    /*
+        search news links from given url
+     */
     private Set<News> collectNews(String url){
 
 
@@ -74,20 +81,25 @@ public class ProthomAloService {
         Set<News> newsLinks = new HashSet<>();
         try {
 
+            // get dom from the url
             document = Jsoup.connect(url)
                     .header("Accept-Encoding", "gzip, deflate")
                     .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64; rv:77.0) Gecko/20100101 Firefox/77.0")
                     .referrer("http://www.google.com")
                     .get();
 
+            // filtering anchor tag from dom
             Elements elements =  document.getElementsByTag("a");
 
 
             for(Element e : elements){
+
+                // check for a valid link
                 if(e.attr("href").contains("https://www.prothomalo.com/") && e.attr("href").length()>27) {
 
+                    String category=findNewsCategory(e.attr("href"));
 
-                    newsLinks.add(new News(e.attr("href"),new Date()));
+                    newsLinks.add(new News(e.attr("href"),new Date(),category));
                 }
             }
 
@@ -100,19 +112,19 @@ public class ProthomAloService {
 
     }
 
-    private Set<String> findCategoryLink(Set<News> links){
-        Set<String> categoryLinks = new HashSet<>();
 
-        for (News s : links)
-        {
-            categoryLinks.add(s.getNewsLink().substring(0,s.getNewsLink().lastIndexOf("/")));
+    /*
+        find news-link category
+     */
+    private String findNewsCategory(String url){
+        String sub = url.substring(27);
 
-        }
-
-
-        return categoryLinks;
+        return sub.substring(0,sub.indexOf("/"));
     }
 
+    /*
+        recursively generate sub-link from a given link
+     */
     private Set<String> generateLink(String str, Set<String> links){
 
         if(str.length()<27)

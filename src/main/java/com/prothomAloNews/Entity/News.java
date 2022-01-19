@@ -14,8 +14,9 @@ public class News {
     @GeneratedValue
     private Long id;
 
-
     private String newsLink;
+
+    private String newsCategory;
 
     private Date date;
 
@@ -23,9 +24,18 @@ public class News {
 
     }
 
-    public News(String newsLink, Date date) {
+    public News(String newsLink, Date date, String newsCategory) {
         this.newsLink = newsLink;
         this.date = date;
+        this.newsCategory = newsCategory;
+    }
+
+    public String getNewsCategory() {
+        return newsCategory;
+    }
+
+    public void setNewsCategory(String newsCategory) {
+        this.newsCategory = newsCategory;
     }
 
     public Long getId() {
