@@ -25,88 +25,6 @@ public class ProthomAloService {
     @Autowired
     NewsRepo newsRepo;
 
-    public void test(){
-
-//        Document document = null;
-//        Set<News> newsLinks = new HashSet<>();
-//        try {
-//
-//            document = Jsoup.connect("https://www.prothomalo.com/life/health").get();
-//            System.out.println(document);
-//
-//            Elements elements =  document.getElementsByTag("a");
-//            //System.out.println(elements.toArray().length);
-//
-//            for(Element e : elements){
-//                if(e.attr("href").contains("https://www.prothomalo.com/") && e.attr("href").length()>27) {
-//                    //System.out.println(e.attr("href"));
-//
-//                    newsLinks.add(new News(e.attr("href"),new Date()));
-//
-//
-//                    //System.out.println(e.attr("href"));
-//
-//
-//
-//                }
-//            }
-//            System.out.println("unique.........");
-//
-//            for (News s : newsLinks){
-//                System.out.println(s.getNewsLink());
-//
-//
-//                //System.out.println(s.getNewsLink().substring(0,s.getNewsLink().lastIndexOf("/")));
-//            }
-////
-////            System.out.println(newsLinks.size());
-////
-////
-////
-////        } catch (IOException e) {
-////            e.printStackTrace();
-////        }
-
-        WebClient webClient = new WebClient();
-        HtmlPage page;
-
-        String url = "https://www.prothomalo.com/bangladesh";
-
-        webClient.getOptions().setCssEnabled(false);
-        webClient.getOptions().setJavaScriptEnabled(false);
-        Set<String> l = new HashSet<>();
-        try {
-            page = webClient.getPage(url);
-            DomNodeList<DomElement> nodes = page.getElementsByTagName("a");
-
-            for (DomElement d : nodes){
-                //System.out.println(d.getAttribute("href"));
-
-
-                if(d.getAttribute("href").contains("https://www.prothomalo.com/") && d.getAttribute("href").length()>27) {
-                    //System.out.println(e.attr("href"));
-
-                    l.add(d.getAttribute("href"));
-
-
-                    //System.out.println(e.attr("href"));
-
-
-
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("Test "+l.size());
-
-        for (String s : l){
-            System.out.println(s);
-        }
-
-
-    }
 
     public void findNews()  {
 
@@ -115,39 +33,37 @@ public class ProthomAloService {
 
         //https://www.prothomalo.com/topic/%E0%A6%95%E0%A6%B0%E0%A7%8B%E0%A6%A8%E0%A6%BE%E0%A6%AD%E0%A6%BE%E0%A6%87%E0%A6%B0%E0%A6%BE%E0%A6%B8
 
-        news = collectNews("https://www.prothomalo.com/bangladesh");
-
-//
-//        //Set<String> categoryLinks = findCategoryLink(news);
-//
-//        news.addAll(collectNews("https://www.prothomalo.com/collection/latest/"));
-//
-//        news.addAll(collectNews("https://www.prothomalo.com/topic/%E0%A6%AC%E0%A6%BF%E0%A6%B6%E0%A7%87%E0%A6%B7-%E0%A6%B8%E0%A6%82%E0%A6%AC%E0%A6%BE%E0%A6%A6"));
-//
-//        news.addAll(collectNews("https://www.prothomalo.com/politics"));
-//
-//        news.addAll(collectNews("https://www.prothomalo.com/sports"));
-//
-//        news.addAll(collectNews("https://www.prothomalo.com/chakri"));
-//
-//        news.addAll(collectNews("https://www.prothomalo.com/lifestyle"));
-
-        //news.addAll(collectNews("https://www.prothomalo.com/life/health"));
+         news = collectNews("https://www.prothomalo.com");
 
 
+        //Set<String> categoryLinks = findCategoryLink(news);
+
+        news.addAll(collectNews("https://www.prothomalo.com/collection/latest/"));
+
+        news.addAll(collectNews("https://www.prothomalo.com/topic/%E0%A6%AC%E0%A6%BF%E0%A6%B6%E0%A7%87%E0%A6%B7-%E0%A6%B8%E0%A6%82%E0%A6%AC%E0%A6%BE%E0%A6%A6"));
+
+        news.addAll(collectNews("https://www.prothomalo.com/topic/%E0%A6%95%E0%A6%B0%E0%A7%8B%E0%A6%A8%E0%A6%BE%E0%A6%AD%E0%A6%BE%E0%A6%87%E0%A6%B0%E0%A6%BE%E0%A6%B8"));
 
 
-        //System.out.println("size "+news.size());
+        Set<String> links;
 
-//        System.out.println("---------generate link-----");
-//        subLinks = generateLink("https://www.prothomalo.com/business/world-business/",new HashSet<>());
-//
-//        for (String s : subLinks){
-//            System.out.println(s);
-//        }
-//
+        for(News n : news){
+            links = generateLink(n.getNewsLink(),new HashSet<>());
+            subLinks.addAll(links);
+        }
+
+
+
+
+
+        for (String s : subLinks){
+            news.addAll(collectNews(s));
+        }
+
 
         newsRepo.saveAll(news);
+
+
 
     }
 
@@ -161,32 +77,15 @@ public class ProthomAloService {
             document = Jsoup.connect(url).get();
 
             Elements elements =  document.getElementsByTag("a");
-            //System.out.println(elements.toArray().length);
+           
 
             for(Element e : elements){
                 if(e.attr("href").contains("https://www.prothomalo.com/") && e.attr("href").length()>27) {
-                    //System.out.println(e.attr("href"));
+
 
                     newsLinks.add(new News(e.attr("href"),new Date()));
-
-
-                        //System.out.println(e.attr("href"));
-
-
-
                 }
             }
-            System.out.println("unique.........");
-
-            for (News s : newsLinks){
-                System.out.println(s.getNewsLink());
-
-
-                //System.out.println(s.getNewsLink().substring(0,s.getNewsLink().lastIndexOf("/")));
-            }
-
-            System.out.println(newsLinks.size());
-
 
 
         } catch (IOException e) {
@@ -203,7 +102,7 @@ public class ProthomAloService {
         for (News s : links)
         {
             categoryLinks.add(s.getNewsLink().substring(0,s.getNewsLink().lastIndexOf("/")));
-            //s.getNewsLink().
+
         }
 
 
@@ -212,15 +111,21 @@ public class ProthomAloService {
 
     private Set<String> generateLink(String str, Set<String> links){
 
-        if(str.length()<=28)
+        if(str.length()<27)
         {
             return links;
         }
-        links.add(str.substring(0,str.lastIndexOf("/")));
+
+        String subString = str.substring(0,str.lastIndexOf("/"));
+
+        if(subString.length()>26){
+            links.add(subString);
+        }
 
         return generateLink(str.substring(0,str.lastIndexOf("/")),links);
 
     }
+
 
 
 

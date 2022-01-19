@@ -14,9 +14,6 @@ public class ProthomAloNewsApplication {
 
 		ProthomAloService service = context.getBean(ProthomAloService.class);
 
-		//service.findNews();
-
-		service.test();
 		service.findNews();
 
 	}
