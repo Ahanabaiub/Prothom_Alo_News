@@ -31,18 +31,17 @@ public class ProthomAloService {
         Set<News> news = new HashSet<>();
         Set<String> subLinks = new HashSet<>();
 
-        //https://www.prothomalo.com/topic/%E0%A6%95%E0%A6%B0%E0%A7%8B%E0%A6%A8%E0%A6%BE%E0%A6%AD%E0%A6%BE%E0%A6%87%E0%A6%B0%E0%A6%BE%E0%A6%B8
+        news = collectNews("https://www.prothomalo.com");
 
-         news = collectNews("https://www.prothomalo.com");
-
-
-        //Set<String> categoryLinks = findCategoryLink(news);
 
         news.addAll(collectNews("https://www.prothomalo.com/collection/latest/"));
 
         news.addAll(collectNews("https://www.prothomalo.com/topic/%E0%A6%AC%E0%A6%BF%E0%A6%B6%E0%A7%87%E0%A6%B7-%E0%A6%B8%E0%A6%82%E0%A6%AC%E0%A6%BE%E0%A6%A6"));
 
         news.addAll(collectNews("https://www.prothomalo.com/topic/%E0%A6%95%E0%A6%B0%E0%A7%8B%E0%A6%A8%E0%A6%BE%E0%A6%AD%E0%A6%BE%E0%A6%87%E0%A6%B0%E0%A6%BE%E0%A6%B8"));
+
+
+       // news = collectNews("https://www.prothomalo.com/education");
 
 
         Set<String> links;
@@ -53,11 +52,12 @@ public class ProthomAloService {
         }
 
 
-
-
-
         for (String s : subLinks){
             news.addAll(collectNews(s));
+        }
+
+        for(News n : news){
+            System.out.println(n.getNewsLink());
         }
 
 
@@ -74,10 +74,14 @@ public class ProthomAloService {
         Set<News> newsLinks = new HashSet<>();
         try {
 
-            document = Jsoup.connect(url).get();
+            document = Jsoup.connect(url)
+                    .header("Accept-Encoding", "gzip, deflate")
+                    .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64; rv:77.0) Gecko/20100101 Firefox/77.0")
+                    .referrer("http://www.google.com")
+                    .get();
 
             Elements elements =  document.getElementsByTag("a");
-           
+
 
             for(Element e : elements){
                 if(e.attr("href").contains("https://www.prothomalo.com/") && e.attr("href").length()>27) {
